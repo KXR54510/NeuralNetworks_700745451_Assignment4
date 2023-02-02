@@ -1,0 +1,99 @@
+#Question1
+
+import pandas as pd
+#read the csv file and assign it to a variable
+dataset = pd.read_csv('data.csv')
+df = pd.DataFrame(dataset)
+
+#display the basic statistical description of the data
+df.describe()
+
+#find the rows that has null values
+nullVal = pd.DataFrame(df[df.isna().any(axis=1)])
+print("Rows that has null values:")
+print(nullVal)
+
+#store the rows indexes in a list
+nullValInx = list(nullVal.index.values)
+
+#replace the null values with the respective mean value of the column
+df = df.fillna(round(df.mean(),1))
+
+#display the updated rowa]s
+upd_val = pd.DataFrame(df,index=nullValInx)
+print("\nRows that had null values, after update:")
+upd_val
+
+#aggregated data of coulmns, Pulse and Calories
+df.agg({'Pulse' : ['max', 'min', 'count', 'mean'], 'Calories' : ['max', 'min', 'count', 'mean']})
+
+#to filter values between 500 and 1000 calories
+df_great_500 = df[df['Calories']>=500] #filter rows with calories above 500
+df_filter = df_great_500[df_great_500["Calories"]<=1000] #from the above result, filter the rows with calories below 1000
+df_filter
+
+df_great_500 = df[df['Calories']>500]  #filter rows with calories above 500
+df_pulse_100 = df_great_500[df_great_500["Pulse"]<100] #from the above result, filter the rows with pulse below 100
+df_pulse_100
+
+#create a new dataframe containg all columns except Maxpulse
+df_modified = df[["Duration","Pulse","Calories"]]
+df_modified
+
+#delete the Maxpulse column from the main frame
+del df["Maxpulse"]
+df
+
+#convert the datatype of Calories column to int
+df["Calories"] = df["Calories"].astype(int)
+df
+
+#create a scatter plot for the columns, Duration and Calories
+df.plot.scatter(x='Duration', y='Calories', c='DarkBlue')
+plt.show()
+
+
+
+#Question2
+# Importing the libraries
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# reading the dataset file 
+datasets = pd.read_csv('Salary_Data.csv')
+
+X = datasets.iloc[:, :-1].values
+Y = datasets.iloc[:, 1].values
+
+# Splitting the dataset into the Training and Test sets
+from sklearn.model_selection import train_test_split
+X_Train, X_Test, Y_Train, Y_Test = train_test_split(X, Y, test_size=0.33,random_state = 0)
+
+# Fitting Simple Linear Regression to the training set
+from sklearn.linear_model import LinearRegression
+regressor = LinearRegression()
+regressor.fit(X_Train, Y_Train)
+
+# Predicting the Test set result 
+Y_Pred = regressor.predict(X_Test)
+print("Predicted Output for the given Test Input:\n", Y_Pred)
+
+#Calculating the mean squared error thorugh imported method
+from sklearn.metrics import mean_squared_error
+print("\nMean Squared Error:")
+print("\tCalculated using Imported method:",mean_squared_error(Y_Test,Y_Pred))
+
+#Creating a function to calculate the mean squared error manually
+def mse_manual(y_true,y_predict):
+    error = (y_true - y_predict)**2
+    return (error.sum())/len(y_true)
+
+print("\tCalculated manually:",mse_manual(Y_Test,Y_Pred)) 
+
+#plotting the test data, train data and the regression model
+plt.scatter(X_Train, Y_Train, label="Training Data", color='Green')
+plt.scatter(X_Test, Y_Test, label="Test Data",color='Blue')
+plt.plot(X_Test, Y_Pred, label="Regression Line",color='Red')
+plt.legend()
+plt.show()
